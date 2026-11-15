@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Turf - V40 Placé Martingale & Proportionnel (2€)</title>
+    <title>Turf - V41 Pépite Adoucie & Base 2€</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -138,7 +138,7 @@
             <div class="flex justify-between items-center border-b border-zinc-800 pb-2">
                 <div>
                     <h2 class="text-xs font-bold uppercase text-amber-400 tracking-wider">Bilan du Jour (100% Placé)</h2>
-                    <p class="text-[10px] text-zinc-400">Comparatif en direct • <strong class="text-cyan-400">Martingale (x2)</strong> vs <strong class="text-emerald-400">Proportionnel</strong> • Départ 2€</p>
+                    <p class="text-[10px] text-zinc-400">Base 2€ (Prop. x1.35) • <strong class="text-amber-400">Pépite 2€ Adoucie (Prop. x0.55 | Mart. x1.4)</strong></p>
                 </div>
             </div>
 
@@ -149,30 +149,30 @@
                     <div class="text-[10px] text-zinc-400 uppercase font-bold mb-2">Chevaux Base (Favori)</div>
                     <div class="grid grid-cols-2 gap-2">
                         <div class="bg-zinc-900/60 p-2 rounded border border-cyan-500/30 text-center flex flex-col justify-center">
-                            <span class="text-[8px] text-cyan-400 block uppercase font-bold">Placé (Martingale)</span>
+                            <span class="text-[8px] text-cyan-400 block uppercase font-bold">Placé (Mart. x2)</span>
                             <span id="statBaseMart" class="text-[9px] text-cyan-500/70 font-bold my-0.5">0 / 0</span>
                             <span id="gainBaseMart" class="font-bold text-cyan-300 mt-0.5">0.00 €</span>
                         </div>
                         <div class="bg-zinc-900/60 p-2 rounded border border-emerald-500/30 text-center flex flex-col justify-center shadow-inner">
-                            <span class="text-[8px] text-emerald-400 block uppercase font-bold">Placé (Proportionnel)</span>
+                            <span class="text-[8px] text-emerald-400 block uppercase font-bold">Placé (Prop. x1.35)</span>
                             <span id="statBasePla" class="text-[9px] text-emerald-500/70 font-bold my-0.5">0 / 0</span>
                             <span id="gainBasePla" class="font-bold text-emerald-400 mt-0.5">0.00 €</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- PÉPITE : MARTINGALE vs PROPORTIONNEL -->
+                <!-- PÉPITE : MARTINGALE DOUCE vs PROPORTIONNEL DOUX -->
                 <div class="bg-zinc-950 p-3 rounded-xl border border-amber-500/40 relative flex flex-col justify-between">
-                    <div class="absolute -top-2 -right-2 bg-amber-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow">PÉPITE PLACÉ (2€)</div>
-                    <div class="text-[10px] text-zinc-400 uppercase font-bold mb-2">Chevaux Pépite</div>
+                    <div class="absolute -top-2 -right-2 bg-amber-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow">PÉPITE ADOUCIE (2€)</div>
+                    <div class="text-[10px] text-zinc-400 uppercase font-bold mb-2">Chevaux Pépite (Multi. Doux)</div>
                     <div class="grid grid-cols-2 gap-2">
                         <div class="bg-zinc-900/60 p-2 rounded border border-yellow-500/30 text-center flex flex-col justify-center">
-                            <span class="text-[8px] text-yellow-300 block uppercase font-bold">Placé (Martingale)</span>
+                            <span class="text-[8px] text-yellow-300 block uppercase font-bold">Placé (Mart. x1.4)</span>
                             <span id="statPepiteMart" class="text-[9px] text-yellow-500/70 font-bold my-0.5">0 / 0</span>
                             <span id="gainPepiteMart" class="font-bold text-yellow-300 mt-0.5">0.00 €</span>
                         </div>
                         <div class="bg-zinc-900/60 p-2 rounded border border-amber-500/30 text-center flex flex-col justify-center shadow-inner">
-                            <span class="text-[8px] text-amber-400 block uppercase font-bold">Placé (Proportionnel)</span>
+                            <span class="text-[8px] text-amber-400 block uppercase font-bold">Placé (Prop. x0.55)</span>
                             <span id="statPepitePla" class="text-[9px] text-amber-500/70 font-bold my-0.5">0 / 0</span>
                             <span id="gainPepitePla" class="font-bold text-amber-400 mt-0.5">0.00 €</span>
                         </div>
@@ -194,9 +194,9 @@
                     </div>
                 </div>
 
-                <!-- GESTION PÉPITE -->
+                <!-- GESTION PÉPITE ADOUCIE -->
                 <div class="flex flex-col space-y-1 sm:pl-1">
-                    <span class="text-[9px] uppercase text-amber-400 font-bold mb-0.5">Investissement Pépite (2€)</span>
+                    <span class="text-[9px] uppercase text-amber-400 font-bold mb-0.5">Investissement Pépite Douce (2€)</span>
                     <span class="flex justify-between">Joué (Mart. | Prop.): <strong class="text-white"><span id="totalSpentPepiteMartText" class="text-yellow-300">0.00 €</span> | <span id="totalSpentPepiteText" class="text-amber-300">0.00 €</span></strong></span>
                     <span class="flex justify-between">Max (Mart. | Prop.): <strong class="text-zinc-300"><span id="maxStakePepiteMartText" class="text-yellow-300">0.00 €</span> | <span id="maxStakePepiteText" class="text-amber-300">0.00 €</span></strong></span>
                     <span class="flex justify-between">Déficit Prop.: <strong id="deficitPepiteText" class="text-red-400">0.00 €</strong></span>
@@ -262,7 +262,7 @@
                     <div id="top1Stats" class="text-[11px] text-zinc-400">--</div>
                 </div>
                 <div class="bg-zinc-900/90 p-3 rounded-xl border border-amber-500/40 space-y-1">
-                    <div class="text-[10px] uppercase font-bold text-amber-400">Pépite / Coup de Cœur (2€)</div>
+                    <div class="text-[10px] uppercase font-bold text-amber-400">Pépite / Coup de Cœur (2€ Adoucie)</div>
                     <div id="top2Name" class="font-bold text-white text-sm">En attente...</div>
                     <div id="top2Stats" class="text-[11px] text-zinc-400">--</div>
                 </div>
@@ -1330,11 +1330,24 @@
             return foundGain;
         }
 
-        // MODE PROPORTIONNEL (RATTRAPAGE OPTIMISÉ)
+        // MODE PROPORTIONNEL BASE (FAVORI : x1.35 adapté aux petits rapports)
         function computeSmartStake(deficitSerie, baseStakeVal = STAKE_BASE) {
             if (deficitSerie <= 0) return baseStakeVal;
             let stake = Math.ceil((deficitSerie * 1.35) + baseStakeVal);
             return Math.max(baseStakeVal + 1, stake);
+        }
+
+        // MODE PROPORTIONNEL ADOUCI POUR LA PÉPITE (x0.55 car les rapports placés d'une Pépite sont élevés)
+        function computePepiteSmartStake(deficitSerie, baseStakeVal = STAKE_PEPITE) {
+            if (deficitSerie <= 0) return baseStakeVal;
+            let stake = Math.ceil((deficitSerie * 0.55) + baseStakeVal);
+            return Math.max(baseStakeVal + 1, stake);
+        }
+
+        // MARTINGALE ADOUCIE POUR LA PÉPITE (x1.4 au lieu de x2 après une défaite)
+        function computePepiteNextMartStake(currentStake) {
+            let next = Math.ceil(currentStake * 1.4);
+            return next <= currentStake ? currentStake + 1 : next;
         }
 
         function placeBet(raceKey, horseNum, horseName, odds, raceName, isLocked) {
@@ -1734,6 +1747,7 @@
                 manualProfit: Number(manualProfit) || 0,
                 updatedAt: Date.now()
             };
+            safeSaveStatItem(`pmu_stats_unified_v41_${mode}_${ddmmyyyy}`, histObj);
             safeSaveStatItem(`pmu_stats_unified_v40_${mode}_${ddmmyyyy}`, histObj);
             safeSaveStatItem(`pmu_stats_unified_2e_${mode}_${ddmmyyyy}`, histObj);
             safeSaveStatItem(`pmu_stats_unified_${mode}_${ddmmyyyy}`, histObj);
@@ -1755,6 +1769,7 @@
         function getStatForDateObj(d) {
             let ddmmyyyy = `${String(d.getDate()).padStart(2, '0')}${String(d.getMonth()+1).padStart(2, '0')}${d.getFullYear()}`;
             let candidateKeys = [
+                `pmu_stats_unified_v41_${currentDisciplineMode}_${ddmmyyyy}`,
                 `pmu_stats_unified_v40_${currentDisciplineMode}_${ddmmyyyy}`,
                 `pmu_stats_unified_2e_${currentDisciplineMode}_${ddmmyyyy}`,
                 `pmu_stats_unified_${currentDisciplineMode}_${ddmmyyyy}`,
@@ -2036,7 +2051,7 @@
                         currentMartStakeBase = martStakeB * 2;
                     }
 
-                    // 2. Base Placé Proportionnel
+                    // 2. Base Placé Proportionnel (x1.35)
                     let actualStakeBase = computeSmartStake(deficitSerieBase, STAKE_BASE);
                     if (gPla > 0) {
                         let netBasePla = (gPla * actualStakeBase) - actualStakeBase;
@@ -2054,18 +2069,18 @@
                         gPla = Math.max(1.10, parseFloat((1 + ((nuggetH.cote - 1) / 3.5)).toFixed(2)));
                     }
 
-                    // 1. Pépite Placé Martingale (x2 après défaite, retour à 2€ après victoire)
+                    // 1. Pépite Placé Martingale Adoucie (x1.4 après défaite, retour à 2€ après victoire)
                     let martStakeP = currentMartStakePepite;
                     if (gPla > 0) {
                         totalProfitPepiteMart += (gPla * martStakeP) - martStakeP;
                         currentMartStakePepite = STAKE_PEPITE;
                     } else {
                         totalProfitPepiteMart -= martStakeP;
-                        currentMartStakePepite = martStakeP * 2;
+                        currentMartStakePepite = computePepiteNextMartStake(martStakeP);
                     }
 
-                    // 2. Pépite Placé Proportionnel
-                    let simStakePepite = computeSmartStake(deficitSeriePepite, STAKE_PEPITE);
+                    // 2. Pépite Placé Proportionnel Adouci (x0.55)
+                    let simStakePepite = computePepiteSmartStake(deficitSeriePepite, STAKE_PEPITE);
                     if (gPla > 0) {
                         let netPepitePla = (gPla * simStakePepite) - simStakePepite;
                         totalProfitPepitePla += netPepitePla;
@@ -2184,7 +2199,7 @@
                     let baseArr = baseH ? (raceData.partants.find(p => parseInt(p.numPmu || p.numOrdre,10) === baseH.num)?.ordreArrivee || 99) : 99;
                     let nuggetArr = nuggetH ? (raceData.partants.find(p => parseInt(p.numPmu || p.numOrdre,10) === nuggetH.num)?.ordreArrivee || 99) : 99;
 
-                    // CALCUL BASE PLACÉ : MARTINGALE (x2) & PROPORTIONNEL
+                    // CALCUL BASE PLACÉ : MARTINGALE (x2) & PROPORTIONNEL (x1.35)
                     if (baseH) {
                         coursesValidees++;
                         let gPla = extractGainFromRapports(raceData.rapportsList, baseH.num, 'PLACE');
@@ -2220,7 +2235,7 @@
                         }
                     }
 
-                    // CALCUL PÉPITE PLACÉ : MARTINGALE (x2) & PROPORTIONNEL
+                    // CALCUL PÉPITE PLACÉ ADOUCI : MARTINGALE DOUCE (x1.4) & PROPORTIONNEL DOUX (x0.55)
                     if (nuggetH) {
                         coursesPepiteValidees++;
                         let gPla = extractGainFromRapports(raceData.rapportsList, nuggetH.num, 'PLACE');
@@ -2228,7 +2243,7 @@
                             gPla = Math.max(1.10, parseFloat((1 + ((nuggetH.cote - 1) / 3.5)).toFixed(2)));
                         } 
 
-                        // 1. Pépite Placé Martingale
+                        // 1. Pépite Placé Martingale Adoucie (x1.4)
                         let martStakeP = currentMartStakePepite;
                         totalSpentPepiteMart += martStakeP;
                         if (martStakeP > maxStakePepiteMart) maxStakePepiteMart = martStakeP;
@@ -2237,11 +2252,11 @@
                             currentMartStakePepite = STAKE_PEPITE;
                         } else {
                             totalProfitPepiteMart -= martStakeP;
-                            currentMartStakePepite = martStakeP * 2;
+                            currentMartStakePepite = computePepiteNextMartStake(martStakeP);
                         }
 
-                        // 2. Pépite Placé Proportionnel
-                        let simStakePepite = computeSmartStake(deficitSeriePepite, STAKE_PEPITE);
+                        // 2. Pépite Placé Proportionnel Adouci (x0.55)
+                        let simStakePepite = computePepiteSmartStake(deficitSeriePepite, STAKE_PEPITE);
                         totalSpentPepite += simStakePepite;
                         if (simStakePepite > maxStakePepite) maxStakePepite = simStakePepite;
                         
@@ -2278,7 +2293,7 @@
                     document.getElementById('deficitPepiteText').textContent = `${deficitSeriePepite.toFixed(2)} €`;
 
                     let nextStakeBase = computeSmartStake(deficitSerieBase, STAKE_BASE);
-                    let nextStakePepite = computeSmartStake(deficitSeriePepite, STAKE_PEPITE);
+                    let nextStakePepite = computePepiteSmartStake(deficitSeriePepite, STAKE_PEPITE);
                     
                     document.getElementById('nextStakeBaseMartText').textContent = `Mart: ${currentMartStakeBase.toFixed(2)} €`;
                     document.getElementById('nextStakeBaseText').textContent = `Prop: ${nextStakeBase.toFixed(2)} €`;
