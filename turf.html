@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Turf - V42 Base 3€ & Pépite Adoucie 2€</title>
+    <title>Turf - V43 Sync PC & Mobile Parfaite (Base 3€ / Pépite 2€)</title>
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -56,8 +56,8 @@
                     <i class="fa-solid fa-calendar-days text-emerald-400"></i>
                 </button>
 
-                <!-- PURGE CACHE -->
-                <button onclick="resetAllCache()" class="bg-red-900/40 hover:bg-red-600 text-red-300 hover:text-white w-8 h-8 rounded-lg border border-red-500/40 font-bold transition flex items-center justify-center shadow flex-shrink-0 cursor-pointer" title="Recalculer les courses du jour">
+                <!-- PURGE CACHE & SYNCHRONISATION PC/MOBILE -->
+                <button onclick="resetAllCache()" class="bg-red-900/40 hover:bg-red-600 text-red-300 hover:text-white w-8 h-8 rounded-lg border border-red-500/40 font-bold transition flex items-center justify-center shadow flex-shrink-0 cursor-pointer" title="Synchroniser et recalculer à neuf (PC/Mobile)">
                     <i class="fa-solid fa-arrows-rotate"></i>
                 </button>
                 
@@ -358,7 +358,7 @@
     </div>
 
     <script>
-        const CACHE_VERSION = "v21";
+        const CACHE_VERSION = "v43";
         
         // MISES DE DÉPART : 3€ POUR LA BASE (FAVORI), 2€ POUR LA PÉPITE ET LE TICKET
         const STAKE_BASE = 3.0;
@@ -383,6 +383,7 @@
             return startMs > 0 && nowMs >= startMs;
         }
 
+        // NETTOYAGE DES ANCIENS CACHES OBSOLÈTES AU DÉMARRAGE
         function cleanupAndMigrateStorage() {
             try {
                 let keysToRemove = [];
@@ -391,19 +392,6 @@
                     if (!k) continue;
                     if (k.startsWith('race_cache_') && !k.startsWith(`race_cache_${CACHE_VERSION}_`)) {
                         keysToRemove.push(k);
-                    }
-                    if (k.startsWith('pmu_stats_multidis_')) {
-                        let m = k.match(/^pmu_stats_multidis_v\d+_(TROT|ALL)_(\d{8})$/);
-                        if (m) {
-                            let mode = m[1];
-                            let ddmmyyyy = m[2];
-                            let unifiedKey = `pmu_stats_unified_${mode}_${ddmmyyyy}`;
-                            if (!localStorage.getItem(unifiedKey)) {
-                                try {
-                                    localStorage.setItem(unifiedKey, localStorage.getItem(k));
-                                } catch(e) {}
-                            }
-                        }
                     }
                 }
                 keysToRemove.forEach(k => localStorage.removeItem(k));
@@ -559,16 +547,21 @@
             if (cdEl) cdEl.textContent = '';
         }
 
+        // BOUTON ROUGE : PURGE TOTALE DES CACHES, CHEVAUX FIGÉS ET ANCIENS HISTORIQUES POUR SYNCHRONISER PC & TÉLÉPHONE
         function resetAllCache() {
             notifiedArrivals = {};
             hasAutoTransitioned = {};
             clearAutoTransition();
             Object.keys(localStorage).forEach(k => {
-                if (k.startsWith('race_cache_')) {
+                if (
+                    k.startsWith('race_cache_') ||
+                    k.startsWith('fabturf_locked_picks_') ||
+                    k.startsWith('pmu_stats_')
+                ) {
                     localStorage.removeItem(k);
                 }
             });
-            showToast("Cache des courses purgé, recalcul en cours...", "success");
+            showToast("Mémoire synchronisée (PC/Mobile) ! Recalcul à neuf...", "success");
             resetCountersUI();
             loadLivePmu();
         }
@@ -819,13 +812,11 @@
             return `<span class="bg-zinc-500/20 text-zinc-300 border border-zinc-500/40 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider ml-2">${s}</span>`;
         }
 
-        // MOTEUR DE CONNEXION PMU RÉPARÉ : Ne s'arrête plus jamais sur un 404 local de /api/pmu/
         async function smartFetchPMU(path, allowEmpty = false) {
             const sep = path.includes('?') ? '&' : '?';
             const cacheBusterPath = `${path}${sep}_t=${Date.now()}`;
             const fullPmuUrl = `https://online.turfinfo.api.pmu.fr/rest/client/61/programme/${cacheBusterPath}`;
             
-            // 1. Test rapide du proxy local s'il existe (ignore silencieusement les 404 locaux)
             try {
                 let localRes = await fetch(`/api/pmu/${cacheBusterPath}`);
                 if (localRes.ok) {
@@ -834,7 +825,6 @@
                 }
             } catch (e) {}
 
-            // 2. Liste des proxies publics de secours
             const proxies = [
                 `https://api.allorigins.win/raw?url=${encodeURIComponent(fullPmuUrl)}`,
                 `https://api.allorigins.win/get?url=${encodeURIComponent(fullPmuUrl)}`,
@@ -875,13 +865,19 @@
             throw new Error("PMU bloqué");
         }
 
+        // RÉCUPÉRATION ROBUSTE AVEC DOUBLE TENTATIVE EN CAS DE MICRO-COUPURE 4G/5G
         async function getFullRaceData(dateStr, rNum, cNum, courseObj = null, checkReports = true) {
             let partants = [];
             let rapportsList = [];
-            try {
-                let pData = await smartFetchPMU(`${dateStr}/R${rNum}/C${cNum}/participants?specialisation=INTERNET`, false);
-                if(pData) partants = pData.participants || (Array.isArray(pData) ? pData : []);
-            } catch(e) {}
+
+            for (let attempt = 0; attempt < 2; attempt++) {
+                try {
+                    let pData = await smartFetchPMU(`${dateStr}/R${rNum}/C${cNum}/participants?specialisation=INTERNET`, false);
+                    if (pData) partants = pData.participants || (Array.isArray(pData) ? pData : []);
+                    if (partants.length > 0) break;
+                } catch(e) {}
+                await sleep(200);
+            }
 
             if (!courseObj) {
                 let m = liveMeetingsData.find(reun => (reun.numOfficiel || 0) == rNum);
@@ -908,15 +904,17 @@
             let raceStartTime = getCourseTimeMs(courseObj);
             let hasStarted = (raceStartTime === 0) || isCourseStartedOrFinished(courseObj, Date.now());
 
-            // N'interroge les rapports définitifs que si la course est commencée ou a une arrivée
             if (checkReports && (hasArrival || hasStarted)) {
-                try {
-                    let rData = await smartFetchPMU(`${dateStr}/R${rNum}/C${cNum}/rapports-definitifs?specialisation=INTERNET`, true);
-                    if (rData) {
-                        if (Array.isArray(rData)) rapportsList = rData;
-                        else rapportsList = rData.rapports || rData.lesRapports || [];
-                    }
-                } catch(e) {}
+                for (let attempt = 0; attempt < 2; attempt++) {
+                    try {
+                        let rData = await smartFetchPMU(`${dateStr}/R${rNum}/C${cNum}/rapports-definitifs?specialisation=INTERNET`, true);
+                        if (rData) {
+                            rapportsList = Array.isArray(rData) ? rData : (rData.rapports || rData.lesRapports || []);
+                        }
+                        if (rapportsList.length > 0 || !hasArrival) break;
+                    } catch(e) {}
+                    await sleep(200);
+                }
             }
 
             return { partants, rapportsList };
@@ -1177,7 +1175,7 @@
             return Math.min(100, Math.max(5, Math.round(totalPts / totalWeight)));
         }
 
-        // ALGORITHME AVEC VERROUILLAGE DÉFINITIF DU FAVORI ET DE LA PÉPITE DÈS LE DÉPART
+        // ALGORITHME DÉTERMINISTE (TRI PAR COTE PUIS PAR NUMÉRO PMU POUR ÉVITER TOUTE DIFFÉRENCE PC / MOBILE)
         function computeAlgorithm(partants, raceKey = null, isRaceStarted = false) {
             let validPartants = partants.filter(p => {
                 let st = String(p.statut || "PARTANT").toUpperCase();
@@ -1217,11 +1215,13 @@
                 };
             });
 
-            let sortedByCote = [...processed].sort((a, b) => a.cote - b.cote);
+            // Tri strictement déterministe : par cote croissante, puis par numéro PMU croissant en cas d'égalité
+            let sortedByCote = [...processed].sort((a, b) => (a.cote - b.cote) || (a.num - b.num));
             let baseHorse = sortedByCote[0]; 
 
+            // Tri strictement déterministe pour la Pépite : par score décroissant, puis par cote croissante, puis par numéro PMU
             let remaining = processed.filter(p => p.num !== baseHorse?.num);
-            let nuggetHorse = remaining.sort((a, b) => b.nuggetScore - a.nuggetScore)[0];
+            let nuggetHorse = remaining.sort((a, b) => (b.nuggetScore - a.nuggetScore) || (a.cote - b.cote) || (a.num - b.num))[0];
 
             // GESTION DU VERROUILLAGE AU DÉPART DE LA COURSE
             if (raceKey && processed.length > 0 && baseHorse) {
@@ -1250,7 +1250,7 @@
                                 nuggetHorse = lockedNugget;
                             } else {
                                 let rem = processed.filter(p => p.num !== baseHorse.num);
-                                nuggetHorse = rem.sort((a, b) => b.nuggetScore - a.nuggetScore)[0];
+                                nuggetHorse = rem.sort((a, b) => (b.nuggetScore - a.nuggetScore) || (a.cote - b.cote) || (a.num - b.num))[0];
                             }
                         }
 
@@ -1682,7 +1682,7 @@
                     document.getElementById('top2Name').textContent = `Attente cotes...`;
                 }
 
-                processed.sort((a, b) => a.cote - b.cote);
+                processed.sort((a, b) => (a.cote - b.cote) || (a.num - b.num));
                 let tbody = document.getElementById('runnersTableBody');
                 tbody.innerHTML = '';
                 if (processed.length === 0) {
@@ -1738,6 +1738,7 @@
             }
         }
 
+        // STOCKAGE ISOLÉ V43 POUR ÉVITER TOUT MÉLANGE AVEC LES ANCIENNES MISES (10€, 5€, 2€)
         function saveDayStatsToStorage(ddmmyyyy, mode, baseProfit, pepiteProfit, manualProfit, baseMartProfit = 0, pepiteMartProfit = 0) {
             let histObj = {
                 baseProfit: Number(baseProfit) || 0,
@@ -1747,12 +1748,7 @@
                 manualProfit: Number(manualProfit) || 0,
                 updatedAt: Date.now()
             };
-            safeSaveStatItem(`pmu_stats_unified_v42_${mode}_${ddmmyyyy}`, histObj);
-            safeSaveStatItem(`pmu_stats_unified_v41_${mode}_${ddmmyyyy}`, histObj);
-            safeSaveStatItem(`pmu_stats_unified_v40_${mode}_${ddmmyyyy}`, histObj);
-            safeSaveStatItem(`pmu_stats_unified_2e_${mode}_${ddmmyyyy}`, histObj);
-            safeSaveStatItem(`pmu_stats_unified_${mode}_${ddmmyyyy}`, histObj);
-            safeSaveStatItem(`pmu_stats_multidis_v21_${mode}_${ddmmyyyy}`, histObj);
+            safeSaveStatItem(`pmu_stats_unified_v43_${mode}_${ddmmyyyy}`, histObj);
         }
 
         function saveCurrentDayStatsToHistory() {
@@ -1769,31 +1765,22 @@
 
         function getStatForDateObj(d) {
             let ddmmyyyy = `${String(d.getDate()).padStart(2, '0')}${String(d.getMonth()+1).padStart(2, '0')}${d.getFullYear()}`;
-            let candidateKeys = [
-                `pmu_stats_unified_v42_${currentDisciplineMode}_${ddmmyyyy}`,
-                `pmu_stats_unified_v41_${currentDisciplineMode}_${ddmmyyyy}`,
-                `pmu_stats_unified_v40_${currentDisciplineMode}_${ddmmyyyy}`,
-                `pmu_stats_unified_2e_${currentDisciplineMode}_${ddmmyyyy}`,
-                `pmu_stats_unified_${currentDisciplineMode}_${ddmmyyyy}`,
-                `pmu_stats_multidis_v21_${currentDisciplineMode}_${ddmmyyyy}`
-            ];
-            for (let k of candidateKeys) {
-                let saved = localStorage.getItem(k);
-                if (saved) {
-                    try {
-                        let parsed = JSON.parse(saved);
-                        if (parsed && typeof parsed === 'object') {
-                            return {
-                                baseProfit: Number(parsed.baseProfit) || 0,
-                                pepiteProfit: Number(parsed.pepiteProfit) || 0,
-                                baseMartProfit: Number(parsed.baseMartProfit) || 0,
-                                pepiteMartProfit: Number(parsed.pepiteMartProfit) || 0,
-                                manualProfit: Number(parsed.manualProfit) || 0,
-                                hasData: true
-                            };
-                        }
-                    } catch(e) {}
-                }
+            let key = `pmu_stats_unified_v43_${currentDisciplineMode}_${ddmmyyyy}`;
+            let saved = localStorage.getItem(key);
+            if (saved) {
+                try {
+                    let parsed = JSON.parse(saved);
+                    if (parsed && typeof parsed === 'object') {
+                        return {
+                            baseProfit: Number(parsed.baseProfit) || 0,
+                            pepiteProfit: Number(parsed.pepiteProfit) || 0,
+                            baseMartProfit: Number(parsed.baseMartProfit) || 0,
+                            pepiteMartProfit: Number(parsed.pepiteMartProfit) || 0,
+                            manualProfit: Number(parsed.manualProfit) || 0,
+                            hasData: true
+                        };
+                    }
+                } catch(e) {}
             }
             return { baseProfit: 0, pepiteProfit: 0, baseMartProfit: 0, pepiteMartProfit: 0, manualProfit: 0, hasData: false };
         }
@@ -1940,6 +1927,9 @@
                     let ddmmyyyy = `${String(d.getDate()).padStart(2,'0')}${String(d.getMonth()+1).padStart(2,'0')}${d.getFullYear()}`;
                     let isToday = (yyyymmdd === getLocalDateString());
 
+                    // Supprime les verrous pré-course de cette journée pour garantir le même calcul sur PC et Mobile
+                    try { localStorage.removeItem(`fabturf_locked_picks_${ddmmyyyy}`); } catch(e) {}
+
                     if (bannerText) {
                         bannerText.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i>Calcul du ${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} (${idx+1}/${datesToSync.length})...`;
                     }
@@ -1953,7 +1943,7 @@
                     showHistoryStats();
                 }
                 if (!cancelSyncFlag) {
-                    showToast("Cumul Semaine & Mois mis à jour !", "success");
+                    showToast("Cumul Semaine & Mois synchronisé !", "success");
                 } else {
                     showToast("Synchronisation interrompue", "info");
                 }
@@ -1992,7 +1982,8 @@
                 });
             });
 
-            pastRaces.sort((a, b) => a.time - b.time);
+            // Tri chronologique strict avec départage par réunion et numéro de course
+            pastRaces.sort((a, b) => (a.time - b.time) || (a.rNum - b.rNum) || (a.cNum - b.cNum));
             let totalProfitBasePla = 0, totalProfitPepitePla = 0;
             let totalProfitBaseMart = 0, totalProfitPepiteMart = 0;
             let deficitSerieBase = 0, deficitSeriePepite = 0;
@@ -2133,7 +2124,8 @@
                     });
                 });
 
-                pastRacesToday.sort((a, b) => a.time - b.time);
+                // Tri chronologique strict avec départage par réunion et numéro de course
+                pastRacesToday.sort((a, b) => (a.time - b.time) || (a.rNum - b.rNum) || (a.cNum - b.cNum));
 
                 if (pastRacesToday.length === 0) {
                     if (!isAuto && statsProgress) statsProgress.textContent = "Aucune course passée.";
@@ -2334,4 +2326,3 @@
     </script>
 </body>
 </html>
-
